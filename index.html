@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer | CCEE Exam & Placement</title>
+    <meta name="description" content="Live countdown timer for CCEE Exam and Placement dates with real-time clock display.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="bg-particles" id="particles"></div>
+    
+    <!-- Floating gradient orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <main class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-badge">⏳ LIVE</div>
+            <h1 class="title">Countdown<span class="title-accent">Hub</span></h1>
+            <p class="subtitle">Every second counts. Make it matter.</p>
+        </header>
+
+        <!-- Current Time Section -->
+        <section class="current-time-section">
+            <div class="current-time-card glass-card">
+                <div class="card-glow"></div>
+                <div class="time-label">
+                    <span class="pulse-dot"></span>
+                    Current Time
+                </div>
+                <div class="time-display" id="currentTime">00:00:00</div>
+                <div class="time-period" id="timePeriod">AM</div>
+                <div class="date-display" id="currentDate">Loading...</div>
+            </div>
+        </section>
+
+        <!-- Countdown Cards -->
+        <section class="countdown-section">
+            <!-- CCEE Exam Card -->
+            <div class="countdown-card glass-card exam-card" id="examCard">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">CCEE Exam</h2>
+                        <p class="card-date">13 July 2026</p>
+                    </div>
+                    <div class="urgency-badge" id="examUrgency">Loading...</div>
+                </div>
+                
+                <div class="countdown-grid" id="examCountdown">
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="examDays">00</div>
+                        <div class="unit-label">Days</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="examHours">00</div>
+                        <div class="unit-label">Hours</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="examMinutes">00</div>
+                        <div class="unit-label">Minutes</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="examSeconds">00</div>
+                        <div class="unit-label">Seconds</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill exam-progress" id="examProgress"></div>
+                    </div>
+                    <div class="progress-text" id="examProgressText">Calculating...</div>
+                </div>
+
+                <div class="motivational-text" id="examMotivation">"Success is the sum of small efforts, repeated day in and day out."</div>
+            </div>
+
+            <!-- Placement Card -->
+            <div class="countdown-card glass-card placement-card" id="placementCard">
+                <div class="card-glow"></div>
+                <div class="card-header">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title-group">
+                        <h2 class="card-title">Placement Day</h2>
+                        <p class="card-date">19 August 2026</p>
+                    </div>
+                    <div class="urgency-badge placement-badge" id="placementUrgency">Loading...</div>
+                </div>
+                
+                <div class="countdown-grid" id="placementCountdown">
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="placementDays">00</div>
+                        <div class="unit-label">Days</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="placementHours">00</div>
+                        <div class="unit-label">Hours</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="placementMinutes">00</div>
+                        <div class="unit-label">Minutes</div>
+                    </div>
+                    <div class="countdown-separator">:</div>
+                    <div class="countdown-unit">
+                        <div class="unit-value" id="placementSeconds">00</div>
+                        <div class="unit-label">Seconds</div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-bar">
+                        <div class="progress-fill placement-progress" id="placementProgress"></div>
+                    </div>
+                    <div class="progress-text" id="placementProgressText">Calculating...</div>
+                </div>
+
+                <div class="motivational-text" id="placementMotivation">"The only way to do great work is to love what you do."</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Stay focused. Stay consistent. You got this! 💪</p>
+        </footer>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
