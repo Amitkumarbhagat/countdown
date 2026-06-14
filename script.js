@@ -1,8 +1,8 @@
 /**
- * CountdownHub - Live Countdown Timer
- * Target Dates:
- *   - CCEE Exam: 13 July 2026
- *   - Placement: 19 August 2026
+ * CountdownHub - Live Countdown Timer (Single-Screen Edition)
+ * Targets:
+ *   - CCEE Exam:  13 July 2026, 9:00 AM
+ *   - Placement:  19 August 2026, 9:00 AM
  */
 
 (function () {
@@ -14,36 +14,23 @@
     const EVENTS = {
         exam: {
             name: 'CCEE Exam',
-            // Month is 0-indexed: 6 = July
-            date: new Date(2026, 6, 13, 9, 0, 0), // July 13, 2026, 9:00 AM
-            startReference: new Date(2026, 0, 1), // Jan 1, 2026
-            daysId: 'examDays',
-            hoursId: 'examHours',
-            minutesId: 'examMinutes',
-            secondsId: 'examSeconds',
-            progressId: 'examProgress',
-            progressTextId: 'examProgressText',
-            urgencyId: 'examUrgency',
-            motivationId: 'examMotivation',
-            cardId: 'examCard',
+            date: new Date(2026, 6, 13, 9, 0, 0),   // July 13
+            startRef: new Date(2026, 0, 1),
+            ids: { d: 'examDays', h: 'examHours', m: 'examMinutes', s: 'examSeconds',
+                   bar: 'examProgress', pct: 'examProgressText',
+                   urg: 'examUrgency', quote: 'examMotivation', card: 'examCard' }
         },
         placement: {
             name: 'Placement Day',
-            date: new Date(2026, 7, 19, 9, 0, 0), // Aug 19, 2026, 9:00 AM
-            startReference: new Date(2026, 0, 1),
-            daysId: 'placementDays',
-            hoursId: 'placementHours',
-            minutesId: 'placementMinutes',
-            secondsId: 'placementSeconds',
-            progressId: 'placementProgress',
-            progressTextId: 'placementProgressText',
-            urgencyId: 'placementUrgency',
-            motivationId: 'placementMotivation',
-            cardId: 'placementCard',
-        },
+            date: new Date(2026, 7, 19, 9, 0, 0),   // Aug 19
+            startRef: new Date(2026, 0, 1),
+            ids: { d: 'placementDays', h: 'placementHours', m: 'placementMinutes', s: 'placementSeconds',
+                   bar: 'placementProgress', pct: 'placementProgressText',
+                   urg: 'placementUrgency', quote: 'placementMotivation', card: 'placementCard' }
+        }
     };
 
-    const MOTIVATIONAL_QUOTES = [
+    const QUOTES = [
         '"Success is the sum of small efforts, repeated day in and day out."',
         '"The only way to do great work is to love what you do."',
         '"Believe you can and you\'re halfway there."',
@@ -56,232 +43,133 @@
         '"Push yourself, because no one else is going to do it for you."',
     ];
 
-    // Cache DOM elements
-    const elements = {};
-    const previousValues = {};
+    // DOM cache
+    const el = {};
+    const prev = {};
 
     // ==========================================
-    // Initialize
+    // Init
     // ==========================================
     function init() {
-        cacheElements();
-        createParticles();
-        updateClock();
-        updateCountdowns();
+        cacheDOM();
+        tick();
         rotateQuotes();
-
-        // Update every second
-        setInterval(updateClock, 1000);
-        setInterval(updateCountdowns, 1000);
-
-        // Rotate quotes every 30 seconds
+        setInterval(tick, 1000);
         setInterval(rotateQuotes, 30000);
     }
 
-    function cacheElements() {
-        elements.currentTime = document.getElementById('currentTime');
-        elements.timePeriod = document.getElementById('timePeriod');
-        elements.currentDate = document.getElementById('currentDate');
-
-        Object.keys(EVENTS).forEach((key) => {
-            const evt = EVENTS[key];
-            elements[evt.daysId] = document.getElementById(evt.daysId);
-            elements[evt.hoursId] = document.getElementById(evt.hoursId);
-            elements[evt.minutesId] = document.getElementById(evt.minutesId);
-            elements[evt.secondsId] = document.getElementById(evt.secondsId);
-            elements[evt.progressId] = document.getElementById(evt.progressId);
-            elements[evt.progressTextId] = document.getElementById(evt.progressTextId);
-            elements[evt.urgencyId] = document.getElementById(evt.urgencyId);
-            elements[evt.motivationId] = document.getElementById(evt.motivationId);
-            elements[evt.cardId] = document.getElementById(evt.cardId);
+    function cacheDOM() {
+        el.time = document.getElementById('currentTime');
+        el.period = document.getElementById('timePeriod');
+        el.date = document.getElementById('currentDate');
+        Object.values(EVENTS).forEach(e => {
+            Object.entries(e.ids).forEach(([k, id]) => { el[id] = document.getElementById(id); });
         });
     }
 
     // ==========================================
-    // Particles Background
+    // Main tick — clock + countdowns
     // ==========================================
-    function createParticles() {
-        const container = document.getElementById('particles');
-        const count = window.innerWidth < 640 ? 25 : 50;
-
-        for (let i = 0; i < count; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
-            particle.style.animationDelay = (Math.random() * 15) + 's';
-            particle.style.width = (Math.random() * 3 + 1) + 'px';
-            particle.style.height = particle.style.width;
-            particle.style.opacity = Math.random() * 0.5 + 0.1;
-            container.appendChild(particle);
-        }
-    }
-
-    // ==========================================
-    // Current Time
-    // ==========================================
-    function updateClock() {
+    function tick() {
         const now = new Date();
 
-        let hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
+        // Clock
+        let h = now.getHours();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        el.time.textContent = pad(h) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+        el.period.textContent = ampm;
+        el.date.textContent = now.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
-        hours = hours % 12;
-        hours = hours ? hours : 12;
+        // Countdowns
+        Object.values(EVENTS).forEach(e => {
+            const diff = e.date - now;
+            const ids = e.ids;
 
-        const timeStr =
-            pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
+            if (diff <= 0) { handlePassed(e); return; }
 
-        elements.currentTime.textContent = timeStr;
-        elements.timePeriod.textContent = ampm;
+            const days  = Math.floor(diff / 864e5);
+            const hours = Math.floor((diff % 864e5) / 36e5);
+            const mins  = Math.floor((diff % 36e5) / 6e4);
+            const secs  = Math.floor((diff % 6e4) / 1e3);
 
-        const options = {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        };
-        elements.currentDate.textContent = now.toLocaleDateString('en-IN', options);
-    }
+            flip(ids.d, pad(days, days > 99 ? 3 : 2));
+            flip(ids.h, pad(hours));
+            flip(ids.m, pad(mins));
+            flip(ids.s, pad(secs));
 
-    // ==========================================
-    // Countdown Logic
-    // ==========================================
-    function updateCountdowns() {
-        const now = new Date();
+            // Progress
+            const total   = e.date - e.startRef;
+            const elapsed = now   - e.startRef;
+            const pct     = Math.min(elapsed / total * 100, 100);
+            el[ids.bar].style.width = pct.toFixed(1) + '%';
+            el[ids.pct].textContent = pct.toFixed(1) + '%';
 
-        Object.keys(EVENTS).forEach((key) => {
-            const evt = EVENTS[key];
-            const diff = evt.date - now;
-
-            if (diff <= 0) {
-                // Event has passed
-                handleEventPassed(evt);
-                return;
-            }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            // Update with flip animation
-            updateUnitWithFlip(evt.daysId, pad(days, days > 99 ? 3 : 2));
-            updateUnitWithFlip(evt.hoursId, pad(hours));
-            updateUnitWithFlip(evt.minutesId, pad(minutes));
-            updateUnitWithFlip(evt.secondsId, pad(seconds));
-
-            // Update progress bar
-            const totalDuration = evt.date - evt.startReference;
-            const elapsed = now - evt.startReference;
-            const progress = Math.min((elapsed / totalDuration) * 100, 100);
-            elements[evt.progressId].style.width = progress.toFixed(2) + '%';
-            elements[evt.progressTextId].textContent =
-                progress.toFixed(1) + '% time elapsed';
-
-            // Update urgency badge
-            updateUrgency(evt.urgencyId, days);
+            // Urgency
+            const urg = el[ids.urg];
+            urg.classList.remove('critical', 'warning');
+            if (days <= 7)       { urg.textContent = '🔥 ' + days + 'd left!'; urg.classList.add('critical'); }
+            else if (days <= 30) { urg.textContent = '⚡ ' + days + ' days';   urg.classList.add('warning');  }
+            else                 { urg.textContent = '📅 ' + days + ' days'; }
         });
     }
 
-    function updateUnitWithFlip(id, newValue) {
-        const el = elements[id];
-        if (!el) return;
-
-        if (previousValues[id] !== newValue) {
-            el.textContent = newValue;
-            el.classList.remove('flip');
-            // Trigger reflow
-            void el.offsetWidth;
-            el.classList.add('flip');
-            previousValues[id] = newValue;
-        }
+    // ==========================================
+    // Flip animation helper
+    // ==========================================
+    function flip(id, val) {
+        const node = el[id];
+        if (!node || prev[id] === val) return;
+        node.textContent = val;
+        node.classList.remove('flip');
+        void node.offsetWidth;          // reflow
+        node.classList.add('flip');
+        prev[id] = val;
     }
 
-    function updateUrgency(id, days) {
-        const el = elements[id];
-        if (!el) return;
-
-        el.classList.remove('critical', 'warning');
-
-        if (days <= 7) {
-            el.textContent = '🔥 ' + days + 'd left!';
-            el.classList.add('critical');
-        } else if (days <= 30) {
-            el.textContent = '⚡ ' + days + ' days';
-            el.classList.add('warning');
-        } else {
-            el.textContent = '📅 ' + days + ' days';
-        }
-    }
-
-    function handleEventPassed(evt) {
-        const card = elements[evt.cardId];
+    // ==========================================
+    // Event passed
+    // ==========================================
+    function handlePassed(e) {
+        const card = el[e.ids.card];
         if (!card || card.classList.contains('event-passed')) return;
-
         card.classList.add('event-passed');
+        ['d','h','m','s'].forEach(k => { el[e.ids[k]].textContent = '00'; });
+        el[e.ids.bar].style.width = '100%';
+        el[e.ids.pct].textContent = '100%';
+        const urg = el[e.ids.urg];
+        urg.textContent = '✅ Done!';
+        urg.classList.remove('critical', 'warning');
 
-        // Set countdown to zeros
-        elements[evt.daysId].textContent = '00';
-        elements[evt.hoursId].textContent = '00';
-        elements[evt.minutesId].textContent = '00';
-        elements[evt.secondsId].textContent = '00';
-
-        // Full progress
-        elements[evt.progressId].style.width = '100%';
-        elements[evt.progressTextId].textContent = '100% — Completed!';
-
-        // Update urgency
-        const urgencyEl = elements[evt.urgencyId];
-        urgencyEl.textContent = '✅ Done!';
-        urgencyEl.classList.remove('critical', 'warning');
-
-        // Insert passed message
-        const countdownGrid = card.querySelector('.countdown-grid');
-        if (countdownGrid && !card.querySelector('.passed-message')) {
+        const grid = card.querySelector('.countdown-grid');
+        if (grid && !card.querySelector('.passed-message')) {
             const msg = document.createElement('div');
             msg.className = 'passed-message';
-            msg.textContent = evt.name + ' day has arrived! All the best! 🎉';
-            countdownGrid.parentNode.insertBefore(msg, countdownGrid);
+            msg.textContent = e.name + ' day has arrived! All the best! 🎉';
+            grid.parentNode.insertBefore(msg, grid);
         }
     }
 
     // ==========================================
-    // Motivational Quotes Rotation
+    // Quote rotation
     // ==========================================
     function rotateQuotes() {
-        Object.keys(EVENTS).forEach((key) => {
-            const evt = EVENTS[key];
-            const el = elements[evt.motivationId];
-            if (!el) return;
-
-            const randomQuote =
-                MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)];
-            el.style.opacity = '0';
-            setTimeout(() => {
-                el.textContent = randomQuote;
-                el.style.opacity = '1';
-                el.style.transition = 'opacity 0.5s ease';
-            }, 300);
+        Object.values(EVENTS).forEach(e => {
+            const node = el[e.ids.quote];
+            if (!node) return;
+            const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
+            node.style.opacity = '0';
+            setTimeout(() => { node.textContent = q; node.style.opacity = '1'; }, 300);
         });
     }
 
     // ==========================================
-    // Utility
+    // Util
     // ==========================================
-    function pad(num, length) {
-        length = length || 2;
-        return String(num).padStart(length, '0');
-    }
+    function pad(n, len) { return String(n).padStart(len || 2, '0'); }
 
-    // ==========================================
     // Start
-    // ==========================================
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    document.readyState === 'loading'
+        ? document.addEventListener('DOMContentLoaded', init)
+        : init();
 })();
